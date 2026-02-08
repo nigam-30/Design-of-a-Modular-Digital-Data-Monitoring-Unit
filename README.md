@@ -1,5 +1,57 @@
 Developed an 8-bit modular RTL-based Digital Event Monitoring Unit for real-time sensor monitoring with support for both signed and unsigned user-defined thresholds. Implemented a 3-state Moore Finite State Machine (IDLE, ALARM, COOLDOWN) to manage control logic, achieving operation up to 50 MHz with a 1-cycle alarm latency. Designed advanced diagnostic features including a Sticky Alarm latch and a Fault Capture Register to prevent transitory event loss and retain fault-triggering data. Verified functionality through extensive Cadence simulations and evaluated applications across industrial automation and healthcare domains aligned with UN Sustainable Development Goals.
 [RTL Architecture – Modular Digital Event Monitoring Unit](https://drive.google.com/file/d/1bg3-cig8jHdExzSdsEnqjQ5-MuOId5EV/view?usp=sharing)
-[RTL schematic view of the modular Digital Event Monitoring Unit designed in Verilog HDL.
-The architecture integrates sensor and threshold registers, comparator logic, FSM-based control, alarm latch, and fault capture register to enable robust real-time monitoring.
-The modular design improves scalability, reusability, and diagnostic capability for FPGA-based industrial and healthcare systems.] (https://drive.google.com/file/d/1diK_dYo5Jqkw7fBFGjLXGGve9prxE2Km/view?usp=sharing)
+[RTL schematic view of the modular Digital Event Monitoring Unit designed in Verilog](https://drive.google.com/file/d/1diK_dYo5Jqkw7fBFGjLXGGve9prxE2Km/view?usp=sharing)
+📘 Simulation & Waveform Analysis (Cadence NC-Launch)
+
+This project is simulated using Cadence NC tools (NC-Launch, Xcelium, SimVision) with a CSH-based workflow.
+📂 Project Files
+dut.v – RTL Design (Digital Event Monitoring Unit)
+test.v – Verilog Testbench
+
+🛠️ Prerequisites
+Cadence tools installed (Xcelium / SimVision)
+Linux environment
+Cadence environment sourced
+Shell set to csh
+▶️ Steps to Run Simulation
+1️⃣ Open Terminal & Switch to C Shell
+csh
+2️⃣ Source Cadence Environment
+(Use your institute/company setup file)
+source /path/to/cadence/setup.csh
+3️⃣ Launch NC-Launch
+Navigate to the project directory:
+cd <project_directory>
+nclaunch &
+🧭 Running Simulation in NC-Launch
+In NC-Launch GUI, create a new simulation
+
+Add source files:
+dut.v
+test.v
+Select simulator: Xcelium
+Set test.v as the top module
+Enable waveform dumping
+Click Run
+NC-Launch will compile and simulate the design automatically.
+
+📊 Waveform Analysis (SimVision)
+After simulation starts:
+SimVision opens automatically
+Open Waveform Window
+
+Add key signals:
+clk
+reset
+sensor_data
+threshold_value
+alarm_output
+fault_capture
+FSM state signals
+Run simulation and zoom into regions of interest
+
+🧪 Expected Observations
+Alarm assertion within 1 clock cycle of threshold violation
+Sticky alarm remains asserted after sensor returns to safe value
+Fault capture register stores violating sensor data
+Correct FSM transitions: IDLE → ALARM → COOLDOWN
