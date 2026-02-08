@@ -1,5 +1,6 @@
 Developed an 8-bit modular RTL-based Digital Event Monitoring Unit for real-time sensor monitoring with support for both signed and unsigned user-defined thresholds. Implemented a 3-state Moore Finite State Machine (IDLE, ALARM, COOLDOWN) to manage control logic, achieving operation up to 50 MHz with a 1-cycle alarm latency. Designed advanced diagnostic features including a Sticky Alarm latch and a Fault Capture Register to prevent transitory event loss and retain fault-triggering data. Verified functionality through extensive Cadence simulations and evaluated applications across industrial automation and healthcare domains aligned with UN Sustainable Development Goals.
 [RTL Architecture – Modular Digital Event Monitoring Unit](https://drive.google.com/file/d/1bg3-cig8jHdExzSdsEnqjQ5-MuOId5EV/view?usp=sharing)
+
 [RTL schematic view of the modular Digital Event Monitoring Unit designed in Verilog](https://drive.google.com/file/d/1diK_dYo5Jqkw7fBFGjLXGGve9prxE2Km/view?usp=sharing)
 📘 Simulation & Waveform Analysis (Cadence NC-Launch)
 
