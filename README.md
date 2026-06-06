@@ -36,3 +36,35 @@ Automatically invokes Yosys for synthesis.
 Generates Post-Synthesis JSON netlist.
 Uses NetlistSVG to render clean Gate-Level SVG diagrams instantly.
 Script: synth/auto_architect.py
+
+🚀 How to Run
+1. Simulation (Icarus Verilog)
+Phase 1 (DEMU Core):
+
+bash
+
+iverilog -o sim_demu.vvp rtl/data_monitor.v tb/tb_data_monitor.v
+vvp sim_demu.vvp
+Phase 2 (APB Wrapper):
+
+bash
+
+iverilog -o sim_apb.vvp rtl/data_monitor.v rtl/apb_demu_wrapper.v tb/tb_apb_wrapper.v
+vvp sim_apb.vvp
+
+2. Synthesis & Visualization (AutoArchitect)
+Navigate to the synth folder and run the python script:
+
+bash
+
+cd synth
+python3 auto_architect.py
+
+# SVG diagrams and JSON netlists will be generated 
+
+🧠 Tech Stack
+HDL: Verilog
+Simulation: Icarus Verilog
+Synthesis: Yosys
+Protocols: AMBA APB4
+Automation: Python (Subprocess, JSON)
