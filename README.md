@@ -64,7 +64,11 @@ SVG diagrams and JSON netlists will be generated
 
 🧠 Tech Stack
 HDL: Verilog
+
 Simulation: Icarus Verilog
+
 Synthesis: Yosys
+
 Protocols: AMBA APB4
+
 Automation: Python (Subprocess, JSON)
