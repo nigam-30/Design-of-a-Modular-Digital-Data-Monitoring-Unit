@@ -60,7 +60,7 @@ bash
 cd synth
 python3 auto_architect.py
 
-# SVG diagrams and JSON netlists will be generated 
+SVG diagrams and JSON netlists will be generated 
 
 🧠 Tech Stack
 HDL: Verilog
