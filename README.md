@@ -8,18 +8,25 @@ Dual Comparison Modes: Supports both Unsigned and Signed ($signed) data comparis
 Custom Bitwise Logic: Comparison logic built entirely using bitwise operators (&, |, ~) without relying on direct < or > operators, ensuring strict control over the generated hardware.
 FSM-Driven Control: 3-state Finite State Machine (IDLE ➔ ALARM ➔ COOLDOWN).
 Sticky Alarm & Fault Capture: Latches the alarm state until the processor acknowledges it, and captures the exact sensor value that triggered the fault.
+
 🧠 Phase 2: SoC Integration - APB4 Wrapper
 Real-world IPs don't exist in isolation; they talk to a CPU. In this phase, the DEMU core was wrapped inside an AMBA APB4 slave interface, making it a memory-mapped peripheral.
 
 APB4 Protocol Implementation: Fully compliant with Setup and Access phases (psel, penable, pwrite, pready).
 Memory-Mapped Registers: The CPU configures the DEMU and reads its status entirely by reading/writing to specific memory addresses.
 Auto-Clearing Acknowledge: Software acknowledgment (sw_ack) auto-clears after one clock cycle to prevent latching errors.
+
 🗺️ APB4 Register Map (Phase 2)
 Address Offset	Register Name	R/W	Description
+
 0x00	THRESHOLD_REG	R/W	Sets the threshold value (8-bit)
+
 0x04	MODE_CTRL_REG	R/W	[0]: monitor_enable, [1]: data_mode
+
 0x08	SW_ACK_REG	W	Write 1 to acknowledge and clear alarm
+
 0x0C	SENSOR_IN_REG	R	Live sensor data read (Hardware input)
+
 0x10	ALARM_STAT_REG	R	[0]: alarm_output, [8:1]: fault_capture
 
 🤖 Bonus: AutoArchitect (Mini EDA Tool)
