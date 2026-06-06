@@ -21,6 +21,7 @@ Address Offset	Register Name	R/W	Description
 0x08	SW_ACK_REG	W	Write 1 to acknowledge and clear alarm
 0x0C	SENSOR_IN_REG	R	Live sensor data read (Hardware input)
 0x10	ALARM_STAT_REG	R	[0]: alarm_output, [8:1]: fault_capture
+
 🤖 Bonus: AutoArchitect (Mini EDA Tool)
 Instead of manually running Yosys commands, a Python automation script was developed using the subprocess module.
 
