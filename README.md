@@ -445,9 +445,9 @@ These diagrams show the transition from behavioral RTL to FPGA-oriented synthesi
 
 ---
 
-# 📁 Project Structure
+# 📁 Project Files
 
-The updated project files supplied with this repository are organized as follows:
+The updated project files supplied with this repository are as follows:
 
 ```text
 Digital_Data_Monitor_Phase_1_and_2/
