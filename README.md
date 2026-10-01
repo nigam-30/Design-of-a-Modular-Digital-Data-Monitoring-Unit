@@ -1,4 +1,4 @@
-# Design of a Modular Digital Data Monitoring Unit (DEMU)
+# Design of a Modular Digital Data Monitoring Unit 
 
 <p align="center">
   <img src="https://img.shields.io/badge/HDL-Verilog-blue?style=for-the-badge" alt="Verilog">
