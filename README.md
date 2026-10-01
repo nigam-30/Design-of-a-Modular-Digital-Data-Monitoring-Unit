@@ -47,33 +47,32 @@ The resulting architecture can be integrated into larger FPGA or SoC-based syste
                     PHASE 1
         Standalone Digital Event Monitor
                      │
-                     │
-          ┌──────────▼──────────┐
-          │     DEMU CORE      │
-          │                    │
-Sensor ──►│ Threshold Monitor  │
-          │ Signed/Unsigned    │
-          │ Comparison         │
-          │ FSM Controller     │
-          │ Sticky Alarm       │
-          │ Fault Capture      │
-          └──────────┬──────────┘
-                     │
-                     │
                      ▼
+           ┌─────────────────────┐
+           │      DEMU CORE      │
+           │                     │
+Sensor ───►│ Threshold Monitor   │
+           │ Signed/Unsigned     │
+           │ Comparison          │
+           │ FSM Controller      │
+           │ Sticky Alarm        │
+           │ Fault Capture       │
+           └──────────┬──────────┘
+                      │
+                      ▼
                     PHASE 2
              APB4 SoC Integration
-                     │
-          ┌──────────▼──────────┐
-          │     APB4 WRAPPER    │
-          │                    │
-CPU ─────►│ Address Decoder    │
-          │ Register Interface │
-          │ Read/Write Logic   │
-          │ Software ACK       │
-          └──────────┬──────────┘
-                     │
-                     ▼
+                      │
+             ┌────────▼────────┐
+             │   APB4 WRAPPER  │
+             │                 │
+CPU ────────►│ Address Decoder │
+             │ Register Logic  │
+             │ Read/Write Logic│
+             │ Software ACK    │
+             └────────┬────────┘
+                      │
+                      ▼
               ┌───────────────┐
               │   DEMU CORE   │
               └───────────────┘
@@ -126,7 +125,7 @@ The Phase 1 design implements the fundamental monitoring engine.
 
 ---
 
-## 🧠 DEMU FSM
+# 🧠 DEMU FSM
 
 The monitoring logic is controlled using a three-state Moore FSM:
 
@@ -138,14 +137,14 @@ The monitoring logic is controlled using a three-state Moore FSM:
                  │   ALARM   │
                  └─────┬─────┘
                        │
-                Software ACK
+                 Software ACK
                        │
                        ▼
                  ┌───────────┐
                  │ COOLDOWN  │
                  └─────┬─────┘
                        │
-                Sensor < Threshold
+                 Sensor < Threshold
                        │
                        ▼
                  ┌───────────┐
@@ -160,8 +159,6 @@ The monitoring logic is controlled using a three-state Moore FSM:
 | `IDLE` | Normal monitoring state |
 | `ALARM` | Threshold violation detected; alarm and fault value are active |
 | `COOLDOWN` | Waits for the sensor value to return below the threshold before returning to IDLE |
-
-This state-based approach provides controlled alarm latching and prevents the system from immediately returning to the normal monitoring state after an acknowledgement.
 
 ---
 
@@ -192,13 +189,9 @@ The same 8-bit data can be interpreted as a signed two's-complement value.
 
 This allows the IP to be used for applications where positive and negative sensor values are meaningful.
 
-The comparison logic in the RTL explicitly derives the comparison conditions using bitwise logic rather than relying directly on high-level relational operators.
-
 ---
 
 # 🔒 Sticky Alarm & Fault Capture
-
-One of the main features of the DEMU is its diagnostic behavior.
 
 When a threshold violation occurs:
 
@@ -216,7 +209,7 @@ Threshold Comparator
      └──────────────► Fault Capture = Trigger Value
 ```
 
-Even after the sensor returns to a normal value, the captured fault information remains available until the alarm is acknowledged and the cooldown condition is satisfied.
+The captured fault information remains available until the alarm is acknowledged and the cooldown condition is satisfied.
 
 ### Example
 
@@ -226,16 +219,12 @@ Threshold = 80
 Sensor:
 50 → 50 → 90 → 90 → 50
 
-Result:
-
-Alarm Output:
+Alarm:
 0  → 0 → 1 → 1 → 1
 
 Fault Capture:
        └──── 90 ────┘
 ```
-
-This allows the system to retain useful diagnostic information instead of losing the event when the sensor returns to its normal range.
 
 ---
 
@@ -243,7 +232,7 @@ This allows the system to retain useful diagnostic information instead of losing
 
 Phase 2 transforms the standalone DEMU into a **processor-configurable SoC-ready IP**.
 
-Instead of configuring the threshold and control signals directly through physical inputs, a processor can access the DEMU through a standard **AMBA APB4 memory-mapped interface**.
+A processor can access the DEMU through a standard **AMBA APB4 memory-mapped interface**.
 
 ### APB4 Signals
 
@@ -263,8 +252,6 @@ Instead of configuring the threshold and control signals directly through physic
 ---
 
 # 🗺️ APB4 Memory Map
-
-The uploaded Phase 2 implementation uses the following register map:
 
 | Offset | Register | Access | Description |
 |---:|---|:---:|---|
@@ -288,15 +275,13 @@ Data Mode:
 ### ALARM STAT
 
 ```text
-Bit [0]   → Alarm Status
+Bit [0]    → Alarm Status
 Bits [8:1] → Captured Fault Value
 ```
 
 ---
 
 # 🔄 APB Transaction Flow
-
-A processor can configure and operate the DEMU through a simple sequence:
 
 ```text
         CPU
@@ -308,9 +293,7 @@ A processor can configure and operate the DEMU through a simple sequence:
    └───────┬───────┘
            │
            ├── 0x00 → Threshold
-           │
            ├── 0x04 → Enable / Mode
-           │
            └── 0x08 → Software ACK
            
 Sensor ───────────────────────► DEMU Core
@@ -329,7 +312,7 @@ Sensor ───────────────────────► 
 
 # 🧪 Verification
 
-The uploaded project contains two dedicated Verilog testbenches.
+The project contains two dedicated Verilog testbenches.
 
 ## Phase 1 Verification
 
@@ -401,8 +384,6 @@ tasks to model APB transactions.
 
 # 📊 Example APB Verification
 
-The uploaded Phase 2 report documents the following verification sequence:
-
 ```text
 Threshold:
 0x50 = 80
@@ -415,13 +396,11 @@ Alarm = 1
 Fault Capture = 90
 ```
 
-The reported APB readback corresponds to the alarm status register containing both the alarm indication and captured fault value.
-
 ---
 
 # 🖥️ RTL & Synthesis Analysis
 
-The project includes both RTL and synthesized schematics generated for hardware analysis.
+The project includes RTL and synthesized schematics for both phases.
 
 ### Phase 1
 
@@ -446,8 +425,6 @@ These diagrams show the transition from behavioral RTL to FPGA-oriented synthesi
 ---
 
 # 📁 Project Files
-
-The updated project files supplied with this repository are as follows:
 
 ```text
 Digital_Data_Monitor_Phase_1_and_2/
@@ -523,32 +500,9 @@ Digital_Data_Monitor_Phase_1_and_2/
 
 [Read the Phase 1 Report](./Data%20Monitoring%20Unit%20Phase%201%20Report.pdf)
 
-The report covers:
-
-- Problem statement
-- DEMU architecture
-- FSM design
-- System specifications
-- Applications
-- SDG mapping
-- Simulation
-- Results
-- Future improvements
-
 ### Phase 2 Report
 
 [Read the Phase 2 Report](./Data%20Monitoring%20Unit%20Phase%202%20Report.pdf)
-
-The report covers:
-
-- APB4 integration
-- SoC-ready architecture
-- Memory-mapped register design
-- APB verification
-- Implementation results
-- Individual Phase 2 contribution
-- EDA automation concept
-- Future work
 
 ---
 
@@ -569,51 +523,26 @@ The report covers:
 | Target Clock | 100 MHz clock constraint |
 | Reported FPGA Operating Reference | 50 MHz average maximum processing speed |
 
-> **Note:** The XDC files supplied with the project specify a **10 ns clock period**, corresponding to a 100 MHz timing constraint. The project report separately describes 50 MHz as an average FPGA maximum processing-speed reference.
+> **Note:** The supplied XDC files specify a **10 ns clock period**, corresponding to a 100 MHz timing constraint. The project report separately describes 50 MHz as an average FPGA maximum processing-speed reference.
 
 ---
 
 # 🌍 Application Areas
 
-The modular nature of the DEMU allows the same monitoring architecture to be adapted to multiple applications.
+The modular DEMU architecture can be adapted to:
 
-### Industrial Automation
-
-Motor temperature/current monitoring and overheat protection.
-
-### Automotive / EV
-
-Battery level and overcharge monitoring.
-
-### Medical Electronics
-
-Monitoring parameters such as temperature or other threshold-based patient/device signals.
-
-### Environmental Monitoring
-
-Flood-level and environmental threshold detection.
-
-### Robotics
-
-Collision detection and current surge monitoring.
-
-### Consumer Electronics
-
-Smart thermostat and abnormal-condition detection.
-
-### Audio Processing
-
-Digital audio clipping detection using signed data.
-
-### Security Systems
-
-Threshold-based motion or intrusion detection.
+- Industrial motor monitoring
+- Automotive / EV battery monitoring
+- Medical monitoring
+- Environmental flood detection
+- Robotics
+- Consumer electronics
+- Audio clipping detection
+- Security monitoring
 
 ---
 
 # 🌱 SDG Relevance
-
-The project can be mapped to several UN Sustainable Development Goals through its application areas.
 
 | Application | SDG |
 |---|---|
@@ -634,8 +563,8 @@ The project can be mapped to several UN Sustainable Development Goals through it
 - **RTL Design**
 - **Finite State Machines**
 - **AMBA APB4**
-- **FPGA Design**
 - **Xilinx Vivado**
+- **Spartan-7 FPGA Target**
 - **XDC Timing Constraints**
 - **RTL Schematic Analysis**
 - **Post-Synthesis Hardware Analysis**
@@ -643,58 +572,97 @@ The project can be mapped to several UN Sustainable Development Goals through it
 
 ---
 
-# 🚀 How to Use
+# 🚀 How to Run in Vivado
 
-## 1. Clone the Repository
+The project was developed and simulated using **Xilinx Vivado** with the following target FPGA device for both Phase 1 and Phase 2:
 
-```bash
-git clone https://github.com/nigam-30/Design-of-a-Modular-Digital-Data-Monitoring-Unit.git
-cd Design-of-a-Modular-Digital-Data-Monitoring-Unit
+```text
+xc7s25csga225-1
 ```
 
-## 2. Add the Updated Design Files
+> **Important:** The project can be fully verified through Vivado simulation without a physical FPGA board. The selected device is used as the synthesis/implementation target.
 
-Use the updated files supplied with the project:
+---
+
+## 🖥️ Phase 1 — Standalone DEMU
+
+### Step 1 — Create Vivado Project
+
+Open **Xilinx Vivado** and select:
+
+```text
+Create Project
+```
+
+Choose a project name such as:
+
+```text
+DEMU_Phase_1
+```
+
+Select:
+
+```text
+RTL Project
+```
+
+---
+
+### Step 2 — Select Target Device
+
+In **Default Part**, search for:
+
+```text
+xc7s25csga225-1
+```
+
+Select:
+
+```text
+Family  : Spartan-7
+Device  : XC7S25
+Package : CSGA225
+Speed   : -1
+```
+
+Finish project creation.
+
+---
+
+### Step 3 — Add Phase 1 RTL
+
+Go to:
+
+```text
+Project Manager
+→ Add Sources
+→ Add or Create Design Sources
+```
+
+Add:
 
 ```text
 data_monitor.v
-apb_demu_wrapper.v
+```
+
+This is the main standalone DEMU core.
+
+---
+
+### Step 4 — Add Phase 1 Testbench
+
+Go to:
+
+```text
+Add Sources
+→ Add or Create Simulation Sources
+```
+
+Add:
+
+```text
 tb_data_monitor.v
-tb_apb_wrapper.v
-constraint.xdc
-timing.xdc
 ```
-
-## 3. Create a Vivado Project
-
-Create a new RTL project in Vivado and add:
-
-```text
-data_monitor.v
-apb_demu_wrapper.v
-```
-
-as design sources.
-
-Add the corresponding testbench as a simulation source.
-
-## 4. Apply Constraints
-
-For the standalone DEMU:
-
-```text
-constraint.xdc
-```
-
-For the APB-integrated design:
-
-```text
-timing.xdc
-```
-
-## 5. Run Simulation
-
-### Phase 1
 
 Set:
 
@@ -704,7 +672,194 @@ tb_data_monitor
 
 as the simulation top.
 
-### Phase 2
+The hierarchy should be:
+
+```text
+tb_data_monitor
+       │
+       ▼
+data_monitor
+```
+
+---
+
+### Step 5 — Add Phase 1 Constraint
+
+Add the supplied:
+
+```text
+constraint.xdc
+```
+
+under:
+
+```text
+Constraints
+```
+
+---
+
+### Step 6 — Run Phase 1 Simulation
+
+From the Vivado Flow Navigator:
+
+```text
+Simulation
+→ Run Simulation
+→ Run Behavioral Simulation
+```
+
+The testbench will execute the monitoring scenarios and generate the simulation waveform.
+
+Important signals to observe include:
+
+```text
+Clock
+Reset
+Sensor Data
+Threshold
+Monitor Enable
+Data Mode
+Alarm
+Fault Capture
+FSM State
+```
+
+The expected functional sequence is:
+
+```text
+Normal Sensor Value
+        ↓
+Threshold Violation
+        ↓
+ALARM = 1
+        ↓
+Fault Value Captured
+        ↓
+Software ACK
+        ↓
+Cooldown
+        ↓
+Normal Operation
+```
+
+---
+
+### Step 7 — Phase 1 Synthesis
+
+After successful simulation:
+
+```text
+Run Synthesis
+```
+
+Then select:
+
+```text
+Open Synthesized Design
+```
+
+You can inspect:
+
+- Utilization
+- Timing
+- LUTs
+- Flip-Flops
+- FSM implementation
+- Synthesized schematic
+
+For RTL-level schematic:
+
+```text
+Open Elaborated Design
+→ Schematic
+```
+
+For synthesized hardware:
+
+```text
+Open Synthesized Design
+→ Schematic
+```
+
+---
+
+# 🚌 Phase 2 — APB4 Integrated DEMU
+
+Phase 2 integrates the Phase 1 monitoring core with an APB4 slave wrapper.
+
+---
+
+## Step 1 — Create Phase 2 Vivado Project
+
+Create a new RTL project:
+
+```text
+DEMU_Phase_2
+```
+
+---
+
+## Step 2 — Select Target Device
+
+Use the same FPGA target:
+
+```text
+xc7s25csga225-1
+```
+
+---
+
+## Step 3 — Add Phase 2 Design Sources
+
+Add both:
+
+```text
+data_monitor.v
+apb_demu_wrapper.v
+```
+
+The architecture is:
+
+```text
+              APB4
+               │
+               ▼
+      ┌──────────────────┐
+      │ apb_demu_wrapper │
+      │                  │
+      │ Address Decoder  │
+      │ Register Logic   │
+      │ APB Read/Write   │
+      └────────┬─────────┘
+               │
+               ▼
+      ┌──────────────────┐
+      │   data_monitor   │
+      │                  │
+      │ Threshold        │
+      │ Comparator       │
+      │ FSM              │
+      │ Alarm            │
+      │ Fault Capture   │
+      └──────────────────┘
+```
+
+---
+
+## Step 4 — Add Phase 2 Testbench
+
+Under:
+
+```text
+Simulation Sources
+```
+
+add:
+
+```text
+tb_apb_wrapper.v
+```
 
 Set:
 
@@ -714,11 +869,266 @@ tb_apb_wrapper
 
 as the simulation top.
 
-The testbenches generate VCD waveform dumps using:
+Hierarchy:
+
+```text
+tb_apb_wrapper
+       │
+       ▼
+apb_demu_wrapper
+       │
+       ▼
+data_monitor
+```
+
+---
+
+## Step 5 — Add Phase 2 Timing Constraint
+
+Add:
+
+```text
+timing.xdc
+```
+
+under:
+
+```text
+Constraints
+```
+
+The supplied constraint uses:
+
+```text
+10 ns clock period
+```
+
+which corresponds to:
+
+```text
+100 MHz
+```
+
+---
+
+## Step 6 — Run Phase 2 Simulation
+
+Run:
+
+```text
+Simulation
+→ Run Simulation
+→ Run Behavioral Simulation
+```
+
+The testbench performs APB transactions using:
 
 ```verilog
-$dumpfile("dump.vcd");
-$dumpvars(...);
+apb_write(...)
+apb_read(...)
+```
+
+The main verification sequence is:
+
+```text
+             Reset
+               ↓
+       Write Threshold = 80
+               ↓
+        Enable Monitor
+               ↓
+         Sensor = 50
+               ↓
+         Sensor = 90
+               ↓
+          ALARM = 1
+               ↓
+      Fault Capture = 90
+               ↓
+          APB READ
+               ↓
+       Alarm Status
+               ↓
+        Software ACK
+               ↓
+       Safe Sensor Value
+```
+
+---
+
+# 🔍 Phase 2 Waveform Signals
+
+In the waveform viewer, inspect the APB signals:
+
+```text
+pclk
+presetn
+psel
+penable
+pwrite
+paddr
+pwdata
+prdata
+pready
+pslverr
+```
+
+and DEMU signals:
+
+```text
+sensor_data
+threshold
+monitor_enable
+data_mode
+alarm
+fault_capture
+state
+```
+
+The expected relationship is:
+
+```text
+APB WRITE
+    ↓
+Register Update
+    ↓
+DEMU Configuration
+    ↓
+Sensor Event
+    ↓
+Alarm
+    ↓
+Fault Capture
+    ↓
+APB READ
+    ↓
+Processor receives Status
+```
+
+---
+
+# 🔬 Phase 2 Synthesis & Schematic
+
+After successful behavioral simulation:
+
+```text
+Run Synthesis
+```
+
+Then:
+
+```text
+Open Synthesized Design
+```
+
+For RTL architecture:
+
+```text
+Open Elaborated Design
+→ Schematic
+```
+
+For synthesized hardware:
+
+```text
+Open Synthesized Design
+→ Schematic
+```
+
+The corresponding schematic documentation included in the project is:
+
+```text
+apbrtlschematic.pdf
+apbsynthesizedschematic.pdf
+```
+
+---
+
+# 💻 Quick Vivado Flow
+
+For someone reproducing the project, the complete workflow is:
+
+```text
+                 ┌────────────────────┐
+                 │   Open Vivado      │
+                 └─────────┬──────────┘
+                           ↓
+                 ┌────────────────────┐
+                 │ Create RTL Project │
+                 └─────────┬──────────┘
+                           ↓
+                 ┌────────────────────┐
+                 │ xc7s25csga225-1    │
+                 └─────────┬──────────┘
+                           ↓
+              ┌────────────┴────────────┐
+              │                         │
+              ▼                         ▼
+          PHASE 1                   PHASE 2
+              │                         │
+       data_monitor.v          data_monitor.v
+       tb_data_monitor.v       apb_demu_wrapper.v
+       constraint.xdc           tb_apb_wrapper.v
+              │                  timing.xdc
+              │                         │
+              ▼                         ▼
+       Behavioral Sim.          Behavioral Sim.
+              │                         │
+              ▼                         ▼
+          Synthesis                 Synthesis
+              │                         │
+              ▼                         ▼
+       RTL/Synth Schematic       RTL/Synth Schematic
+```
+
+---
+
+# ⚠️ Simulation vs Physical FPGA Board
+
+A physical FPGA board is **not required** for the simulation workflow.
+
+The target device:
+
+```text
+xc7s25csga225-1
+```
+
+is used by Vivado for:
+
+```text
+RTL Synthesis
+       ↓
+Technology Mapping
+       ↓
+Implementation
+       ↓
+Timing Analysis
+       ↓
+Resource Estimation
+```
+
+A physical board is only required if you want to go beyond simulation and actually program hardware:
+
+```text
+Generate Bitstream
+        ↓
+Program FPGA
+        ↓
+Run on Physical Hardware
+```
+
+For the current project, the primary verification flow is:
+
+```text
+Behavioral Simulation
+        ↓
+RTL Analysis
+        ↓
+Synthesis
+        ↓
+Timing Analysis
+        ↓
+Schematic Analysis
 ```
 
 ---
@@ -782,7 +1192,7 @@ The core can be reused independently of the APB wrapper.
 
 # 🔮 Future Work
 
-Potential future extensions identified in the project documentation include:
+Potential future extensions include:
 
 - Moving Average Filter for noisy sensor environments
 - AXI4-Lite interface for higher-bandwidth SoC integration
@@ -874,5 +1284,3 @@ Together, the two phases demonstrate practical concepts in **RTL design, FSM-bas
 <p align="center">
   <b>DEMU — Hardware Monitoring from RTL to SoC-Ready IP</b>
 </p>
-
-
