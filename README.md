@@ -429,19 +429,19 @@ These diagrams show the transition from behavioral RTL to FPGA-oriented synthesi
 ```text
 Digital_Data_Monitor_Phase_1_and_2/
 │
-├── data_monitor.v
-├── apb_demu_wrapper.v
+├── phase 1 data_monitor.v
+├── phase 2 apb_demu_wrapper.v
 │
-├── tb_data_monitor.v
-├── tb_apb_wrapper.v
+├── phase 1 tb_data_monitor.v
+├── phase 2 tb_apb_wrapper.v
 │
-├── constraint.xdc
-├── timing.xdc
+├── phase 1 constraint.xdc
+├── phase 2 timing.xdc
 │
-├── rtlschematic.pdf
-├── synthesizedschematic.pdf
-├── apbrtlschematic.pdf
-├── apbsynthesizedschematic.pdf
+├── phase 1 rtl schematic.pdf
+├── phase 1 synthesized schematic.pdf
+├── phase 2 apb rtl schematic.pdf
+├── phase 2 apb synthesized schematic.pdf
 │
 ├── Data Monitoring Unit Phase 1 Report.pdf
 └── Data Monitoring Unit Phase 2 Report.pdf
